@@ -383,12 +383,13 @@ struct foot {
     }
     auto const duration = duration_from_cost(static_cast<cost_t>(std::round(
         static_cast<double>(dist) / params.speed_meters_per_second_)));
+    auto const walk_cost = static_cast<cost_t>(
+        std::round(dist / (params.speed_meters_per_second_ +
+                           (e.is_big_street_ ? -0.2 : 0) +
+                           (e.motor_vehicle_no_ ? 0.1 : 0.0))));
     auto const cost = (!e.is_foot_accessible() ? 90U : 0U) +
                       (e.is_sidewalk_separate() ? 45U : 0U) +
-                      static_cast<cost_t>(std::round(
-                          dist / (params.speed_meters_per_second_ +
-                                  (e.is_big_street_ ? -0.2 : 0) +
-                                  (e.motor_vehicle_no_ ? 0.1 : 0.0))));
+                      (e.is_foot_private() ? 3U * walk_cost : walk_cost);
     return {.cost_ = cost, .duration_ = duration};
   }
 
@@ -399,9 +400,12 @@ struct foot {
         return infeasible_cost_and_duration();
       }
     }
-    return n.is_walk_accessible()
-               ? cost_and_duration_from_cost(n.is_elevator() ? 90U : 0U)
-               : infeasible_cost_and_duration();
+    if (!n.is_walk_accessible()) {
+      return infeasible_cost_and_duration();
+    }
+    return {.cost_ = static_cast<cost_t>((n.is_elevator() ? 90U : 0U) +
+                                         (n.is_foot_private() ? 60U : 0U)),
+            .duration_ = duration_from_cost(n.is_elevator() ? 90U : 0U)};
   }
 
   static constexpr double lower_bound_heuristic(parameters const& params,

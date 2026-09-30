@@ -311,6 +311,8 @@ way_properties get_way_properties(
   p.is_railway_accessible_with_penalty_ =
       is_accessible_with_penalty<railway_profile>(t, obj_type);
   p.is_detour_ = t.is_detour_route();
+  p.is_foot_private_ = p.is_foot_accessible_ &&
+                       foot_profile::access_with_penalty(t, obj_type);
   return p;
 }
 
@@ -333,6 +335,9 @@ std::pair<node_properties, level_bits_t> get_node_properties(tags const& t) {
   p.to_level_ = to_idx(to);
   p.is_bus_accessible_with_penalty_ =
       is_accessible_with_penalty<bus_profile>(t, osm_obj_type::kNode);
+  p.is_foot_private_ =
+      p.is_foot_accessible_ &&
+      foot_profile::access_with_penalty(t, osm_obj_type::kNode);
   return {p, t.level_bits_};
 }
 

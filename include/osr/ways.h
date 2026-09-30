@@ -212,6 +212,7 @@ struct way_properties {
     return is_in_low_emission_zone_;
   }
   constexpr bool is_detour() const { return is_detour_; }
+  constexpr bool is_foot_private() const { return is_foot_private_; }
   constexpr std::uint16_t max_speed_km_per_h() const {
     return to_kmh(static_cast<speed_limit>(speed_limit_));
   }
@@ -268,6 +269,7 @@ struct way_properties {
   std::uint8_t is_in_low_emission_zone_ : 1;
   std::uint8_t is_detour_ : 1;
   std::uint8_t is_oneway_reverse_ : 1;
+  std::uint8_t is_foot_private_ : 1;
 };
 
 static_assert(sizeof(way_properties) == 6);
@@ -288,6 +290,7 @@ struct node_properties {
   constexpr bool is_entrance() const { return is_entrance_; }
   constexpr bool is_parking() const { return is_parking_; }
   constexpr bool is_steps() const { return is_steps_; }
+  constexpr bool is_foot_private() const { return is_foot_private_; }
 
   constexpr level_t from_level() const { return level_t{from_level_}; }
   constexpr level_t to_level() const { return level_t{to_level_}; }
@@ -319,6 +322,7 @@ struct node_properties {
 
   std::uint8_t to_level_ : 6;
   std::uint8_t is_bus_accessible_with_penalty_ : 1;
+  std::uint8_t is_foot_private_ : 1;
 };
 
 static_assert(sizeof(node_properties) == 3);
