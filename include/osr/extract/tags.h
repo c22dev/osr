@@ -461,8 +461,9 @@ struct foot_profile {
     }
 
     switch (cista::hash(t.foot_)) {
-      case cista::hash("no"):
-      case cista::hash("private"): [[fallthrough]];
+      case cista::hash("private"): return override::kNone;
+
+      case cista::hash("no"): [[fallthrough]];
       case cista::hash("use_sidepath"): return override::kBlacklist;
 
       case cista::hash("yes"):
@@ -474,7 +475,7 @@ struct foot_profile {
       return override::kWhitelist;
     }
 
-    if (t.access_ == override::kBlacklist) {
+    if (t.access_ == override::kBlacklist && !t.private_access_) {
       return override::kBlacklist;
     }
 
@@ -513,8 +514,14 @@ struct foot_profile {
     }
   }
 
-  static bool access_with_penalty(tags const&, osm_obj_type const) {
-    return false;
+  static bool access_with_penalty(tags const& t, osm_obj_type const) {
+    switch (cista::hash(t.foot_)) {
+      case cista::hash("private"): return true;
+      case cista::hash("yes"):
+      case cista::hash("permissive"): [[fallthrough]];
+      case cista::hash("designated"): return false;
+    }
+    return t.private_access_ && !t.is_platform_ && !t.is_parking_;
   }
 };
 
