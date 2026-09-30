@@ -22,7 +22,7 @@ constexpr auto const kFrom =
 constexpr auto const kTo = osr::location{52.5840800, 13.3096810, osr::kNoLevel};
 
 // What MOTIS passes for a 360s access leg (360 + 5min).
-constexpr auto const kReconstructionBudget = osr::cost_t{660U};
+constexpr auto const kReconstructionBudget = osr::cost_t{1500U};
 
 class graph {
 public:
