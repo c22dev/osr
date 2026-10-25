@@ -450,7 +450,7 @@ bool is_steps(tags const& t, osm_obj_type const type) {
 
 struct foot_profile {
   static override access_override(tags const& t, osm_obj_type) {
-    if (t.is_route_ || t.sidewalk_separate_ || t.is_ferry_route_) {
+    if (t.is_route_ || t.is_ferry_route_) {
       return override::kBlacklist;
     }
 
