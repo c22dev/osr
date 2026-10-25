@@ -248,19 +248,45 @@ void lookup::filter_by_component(
   out.state_.resize(write);
 }
 
-void lookup::set_penalty_reference(match_result& out,
-                                   level_t const query_lvl) const {
+void lookup::set_penalty_reference(
+    match_result& out,
+    level_t const query_lvl,
+    std::span<component_classes const> const classes) const {
   using idx_t = match_result::way_candidate_idx_t;
 
+  auto const from = to_idx(out.begin_.back());
+  auto const to = static_cast<std::uint32_t>(out.way_.size());
+  auto const unpenalized = [&](std::uint32_t const i) {
+    auto const& props = ways_.r_->way_properties_[out.way_[idx_t{i}]];
+    auto const j = i - from;
+    return j >= classes.size() ||
+           !(classes[j].contains(component_class::kFoot) &&
+             (props.is_sidewalk_separate() || props.is_foot_private()));
+  };
   if (query_lvl.has_level()) {
+    for (auto i = from; i != to; ++i) {
+      if (unpenalized(i)) {
+        out.penalty_ref_.back() = out.dist_to_way_[idx_t{i}];
+        return;
+      }
+    }
     return;
   }
-  auto const to = static_cast<std::uint32_t>(out.way_.size());
-  for (auto i = to_idx(out.begin_.back()); i != to; ++i) {
-    if (touches_ground(ways_.r_->way_properties_[out.way_[idx_t{i}]])) {
+  auto first_ground = std::optional<std::uint32_t>{};
+  for (auto i = from; i != to; ++i) {
+    if (!touches_ground(ways_.r_->way_properties_[out.way_[idx_t{i}]])) {
+      continue;
+    }
+    if (unpenalized(i)) {
       out.penalty_ref_.back() = out.dist_to_way_[idx_t{i}];
       return;
     }
+    if (!first_ground.has_value()) {
+      first_ground = i;
+    }
+  }
+  if (first_ground.has_value()) {
+    out.penalty_ref_.back() = out.dist_to_way_[idx_t{*first_ground}];
   }
 }
 

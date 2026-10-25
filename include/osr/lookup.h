@@ -429,7 +429,13 @@ struct lookup {
                         utl::to_vec(states, [&](endpoint_state_t const state) {
                           return P::endpoint_component_classes(end, state);
                         }));
-    set_penalty_reference(out, query.lvl_);
+    auto const kept_states =
+        std::span{out.state_}.subspan(to_idx(out.begin_.back()));
+    set_penalty_reference(
+        out, query.lvl_,
+        utl::to_vec(kept_states, [&](endpoint_state_t const state) {
+          return P::endpoint_component_classes(end, state);
+        }));
     out.finish();
   }
 
@@ -444,7 +450,9 @@ struct lookup {
   // candidate on the ground: the filter also keeps candidates on other levels
   // (e.g. in an underground station below the query), which would otherwise
   // make every candidate on the street look far away.
-  void set_penalty_reference(match_result&, level_t query_lvl) const;
+  void set_penalty_reference(match_result&,
+                             level_t query_lvl,
+                             std::span<component_classes const> classes) const;
 
   template <typename Fn>
   void find(geo::box const& b, Fn&& fn) const {
