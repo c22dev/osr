@@ -34,7 +34,7 @@ constexpr auto const kFrom =
 constexpr auto const kTo = osr::location{52.5840800, 13.3096810, osr::kNoLevel};
 
 // What MOTIS passes for a 360s access leg (360 + 5min).
-constexpr auto const kReconstructionLimit = std::chrono::seconds{660};
+constexpr auto const kReconstructionLimit = std::chrono::seconds{1500};
 
 constexpr auto const kLongEdgeOsm = R"(
 <osm version="0.6">
