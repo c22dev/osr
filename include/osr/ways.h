@@ -369,8 +369,10 @@ constexpr bool is_accessible(component_class const c, way_properties const& p) {
 
 constexpr bool is_accessible_without_penalty(component_class const c,
                                              way_properties const& p) {
-  return c == component_class::kFoot ? p.is_foot_accessible()
-                                     : is_accessible(c, p);
+  return c == component_class::kFoot
+             ? p.is_foot_accessible() && !p.is_foot_private() &&
+                   !p.is_sidewalk_separate()
+             : is_accessible(c, p);
 }
 
 constexpr bool is_oneway(component_class const c, way_properties const& p) {
